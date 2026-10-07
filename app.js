@@ -1,0 +1,46 @@
+const WSP='5493534196999';
+const prices={5:{mate:650,brillante:650,holografico:750,dorado:750},6:{mate:750,brillante:750,holografico:850,dorado:850}};
+const matNames={mate:'Blanco mate',brillante:'Blanco brillante',holografico:'Holográfico',dorado:'Dorado'};
+const comboBase={50:{basic:25000,special:35000},100:{basic:40000,special:50000},200:{basic:65000,special:75000},500:{basic:130000,special:160000}};
+const catLabels={AR:'Argentina','AUTOS':'Autos','BR-AGRO':'Agro','FUTBOL':'Fútbol','MARCAS':'Marcas','MOTICROSS':'Motocross','SELECCION':'Selección','TRAVEL':'Travel','VARIEDAD':'Variedad'};
+let products=[], filtered=[], shown=40, cart=[], current=null, size=5, mat='mate', qty=1;
+const $=s=>document.querySelector(s); const $$=s=>[...document.querySelectorAll(s)];
+function loadProducts(){
+  try {
+    const data = Array.isArray(window.BEREK_PRODUCTS) ? window.BEREK_PRODUCTS : [];
+    products=data; filtered=data; init(); renderProducts();
+    if(!data.length) showCatalogError('No se encontró el catálogo de productos.');
+  } catch(e){ showCatalogError('No se pudo cargar el catálogo.'); console.error(e); }
+}
+function showCatalogError(msg){
+  const grid=document.querySelector('#productGrid');
+  if(grid) grid.innerHTML=`<div class="catalog-error"><strong>${msg}</strong><span>Si estás usando GitHub Pages, subí la carpeta <b>assets</b> completa junto con index.html, styles.css y app.js.</span></div>`;
+}
+loadProducts();
+function money(n){return '$'+n.toLocaleString('es-AR')}
+function init(){const cats=Object.keys(catLabels); $('#catSelect').innerHTML='<option value="ALL">Todas las categorías</option>'+cats.map(c=>`<option value="${c}">${catLabels[c]}</option>`).join(''); $('#categoryGrid').innerHTML=cats.map(c=>{let p=products.find(x=>x.category===c);let n=products.filter(x=>x.category===c).length;return `<div class="cat-card" data-cat="${c}"><img src="${p.image}" onerror="this.style.display='none'"><div>${catLabels[c]}<small>${n} diseños</small></div></div>`}).join(''); $$('.cat-card').forEach(x=>x.onclick=()=>setCat(x.dataset.cat));}
+function setCat(c){$('#catSelect').value=c;filtered=c==='ALL'?products:products.filter(p=>p.category===c);shown=40;renderProducts();$('#catalogo').scrollIntoView({behavior:'smooth'});}
+function renderProducts(){const q=$('#search').value.trim().toLowerCase(); let arr=filtered.filter(p=>(p.name+' '+p.categoryLabel).toLowerCase().includes(q)); const slice=arr.slice(0,shown); $('#productGrid').innerHTML=slice.map(p=>`<article class="product"><div class="product-img"><img loading="lazy" src="${p.image}" alt="${p.name}" onerror="this.closest('.product-img').classList.add('img-error')"></div><div class="product-info"><small>${p.categoryLabel}</small><h3>${p.name}</h3><div class="product-info-row"><span class="product-price">desde $650</span><button class="mini-add" data-id="${p.id}">VER</button></div></div></article>`).join(''); $$('.mini-add').forEach(b=>b.onclick=()=>openProduct(products.find(p=>p.id===b.dataset.id))); $('#loadMore').style.display=shown<arr.length?'block':'none';}
+function openProduct(p){current=p;size=5;mat='mate';qty=1;$('#modalImg').src=p.image;$('#modalName').textContent=p.name;$('#modalCat').textContent=p.categoryLabel; $$('#sizeOptions button').forEach(b=>b.classList.toggle('selected',b.dataset.size==='5')); $$('.materials button').forEach(b=>b.classList.toggle('selected',b.dataset.mat==='mate'));$('#qval').textContent=1;updatePrice();$('#productModal').classList.add('open');}
+function updatePrice(){$('#modalPrice').textContent=money(prices[size][mat]*qty)}
+$$('#sizeOptions button').forEach(b=>b.onclick=()=>{size=+b.dataset.size;$$('#sizeOptions button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');updatePrice()});
+$$('.materials button').forEach(b=>b.onclick=()=>{mat=b.dataset.mat;$$('.materials button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');updatePrice()});
+$('#qminus').onclick=()=>{qty=Math.max(1,qty-1);$('#qval').textContent=qty;updatePrice()}; $('#qplus').onclick=()=>{qty++;$('#qval').textContent=qty;updatePrice()};
+$('#addToCart').onclick=()=>{cart.push({type:'sticker',product:current,size,mat,qty,unit:prices[size][mat]}); closeModals(); renderCart(); openCart()};
+function renderCart(){const el=$('#cartItems');$('#cartCount').textContent=cart.reduce((a,x)=>a+x.qty,0); if(!cart.length){el.innerHTML='<div class="cart-empty"><strong>Tu carrito está vacío</strong>Elegí tus stickers para empezar.</div>';$('#cartTotal').textContent='$0';return} el.innerHTML='<div class="cart-list">'+cart.map((x,i)=>`<div class="cart-row"><img src="${x.product.image}"><div><h4>${x.product.name}</h4><p>${x.size} cm · ${matNames[x.mat]} · ${x.qty} u.</p><b>${money(x.unit*x.qty)}</b></div><button data-remove="${i}">🗑</button></div>`).join('')+'</div>'; $$('#cartItems [data-remove]').forEach(b=>b.onclick=()=>{cart.splice(+b.dataset.remove,1);renderCart()});$('#cartTotal').textContent=money(cart.reduce((a,x)=>a+x.unit*x.qty,0));}
+function openCart(){$('#drawer').classList.add('open');$('#overlay').classList.add('open')}; function closeCart(){$('#drawer').classList.remove('open');$('#overlay').classList.remove('open')};
+$('#cartBtn').onclick=openCart;$('#overlay').onclick=closeCart;$('#closeDrawer').onclick=closeCart;
+function closeModals(){$$('.modal').forEach(m=>m.classList.remove('open'));} $$('.modal [data-close]').forEach(b=>b.onclick=closeModals);
+$('#search').oninput=()=>{shown=40;renderProducts()};$('#clearSearch').onclick=()=>{$('#search').value='';renderProducts()};$('#catSelect').onchange=e=>setCat(e.target.value);$('#loadMore').onclick=()=>{shown+=40;renderProducts()};
+$$('[data-scroll]').forEach(b=>b.onclick=()=>$('#'+b.dataset.scroll).scrollIntoView({behavior:'smooth'}));$('#customBtn').onclick=()=>window.open(`https://wa.me/${WSP}?text=${encodeURIComponent('Hola Berek! Quiero pedir un sticker personalizado. Tengo mi diseño y quiero consultar tamaños y materiales.')}`,'_blank');
+function comboCard(q){return `<article class="combo"><div class="qty">COMBO · ${q} UNIDADES</div><h3>${money(comboBase[q].basic)} <small style="font-size:10px;color:#777">5 cm</small></h3><p>Mate / brillante</p><select data-combo-size="${q}"><option value="5">5 cm</option><option value="6">6 cm (+$3.000)</option></select><select data-combo-mat="${q}"><option value="basic">Mate / brillante</option><option value="special">Holográfico / dorado</option></select><div class="combo-final" id="combo-final-${q}">${money(comboBase[q].basic)}</div><button data-combo="${q}">PEDIR COMBO</button></article>`}
+$('#comboGrid').innerHTML=Object.keys(comboBase).map(comboCard).join('');
+function updateCombo(q){const size=+document.querySelector(`[data-combo-size="${q}"]`).value, m=document.querySelector(`[data-combo-mat="${q}"]`).value;let v=comboBase[q][m]+(size===6?3000:0);document.querySelector(`#combo-final-${q}`).textContent=money(v)}
+$$('[data-combo-size],[data-combo-mat]').forEach(s=>s.onchange=()=>updateCombo(s.dataset.comboSize||s.dataset.comboMat));
+$$('[data-combo]').forEach(b=>b.onclick=()=>{const q=+b.dataset.combo,size=+document.querySelector(`[data-combo-size="${q}"]`).value,m=document.querySelector(`[data-combo-mat="${q}"]`).value,v=comboBase[q][m]+(size===6?3000:0);const txt=`Hola Berek! Quiero un Combo Emprendedor de ${q} unidades. Tamaño: ${size} cm. Terminación: ${m==='basic'?'Blanco mate o blanco brillante':'Holográfico o dorado'}. Precio estimado: ${money(v)}. Un solo diseño.`;window.open(`https://wa.me/${WSP}?text=${encodeURIComponent(txt)}`,'_blank')});
+$$('[data-card]').forEach(b=>b.onclick=()=>{window.open(`https://wa.me/${WSP}?text=${encodeURIComponent('Hola Berek! Quiero pedir '+b.dataset.card+'. Puedo enviar mi diseño o solicitar diseño desde cero (+$8.000).')}`,'_blank')});
+$('#checkoutBtn').onclick=()=>{if(!cart.length)return alert('Agregá al menos un producto al carrito.');$('#checkoutModal').classList.add('open');};
+$$('[data-delivery]').forEach(b=>b.onclick=()=>{$$('[data-delivery]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('#pickupFields').classList.toggle('hidden',b.dataset.delivery!=='retiro');$('#shippingFields').classList.toggle('hidden',b.dataset.delivery!=='envio');});
+$('#sendWhatsapp').onclick=()=>{const name=$('#clientName').value.trim(),phone=$('#clientPhone').value.trim();if(!name||!phone)return alert('Completá nombre y teléfono.');const del=$('[data-delivery].selected').dataset.delivery;let text=`Hola Berek! 👋%0AQuiero realizar este pedido.%0A%0A*Cliente:* ${name}%0A*Teléfono:* ${phone}%0A%0A`;cart.forEach(x=>{text+=`• ${x.product.name} — ${x.qty} u. — ${x.size} cm — ${matNames[x.mat]} — ${money(x.unit*x.qty)}%0A`});const total=cart.reduce((a,x)=>a+x.unit*x.qty,0);text+=`%0A*Total estimado: ${money(total)}*%0A%0A`;if(del==='retiro')text+=`*Retiro:* ${$('#pickup').value}%0A`;else text+=`*Envío:* ${$('#address').value}, ${$('#city').value}, CP ${$('#postal').value}%0A`;const notes=$('#notes').value.trim();if(notes)text+=`%0A*Notas:* ${notes}`;window.open(`https://wa.me/${WSP}?text=${text}`,'_blank')};
+$('#menuBtn').onclick=()=>$('#categorias').scrollIntoView({behavior:'smooth'});$('#searchBtn').onclick=()=>{document.querySelector('#catalogo').scrollIntoView({behavior:'smooth'});setTimeout(()=>$('#search').focus(),500)};
+renderCart();

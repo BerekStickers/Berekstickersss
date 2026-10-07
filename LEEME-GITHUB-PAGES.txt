@@ -1,0 +1,12 @@
+BEREK STICKERS — TIENDA LISTA PARA GITHUB PAGES
+
+IMPORTANTE: no subas solamente index.html. Debes subir TODO el contenido de esta carpeta, incluyendo la carpeta assets.
+
+Archivos principales:
+- index.html
+- app.js
+- styles.css
+- assets/products.js
+- assets/images/ (617 imágenes)
+
+En GitHub: crea un repositorio, entra en Add file > Upload files y arrastra TODO el contenido de esta carpeta. Luego Settings > Pages > Deploy from a branch > main > /(root) > Save.
