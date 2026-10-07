@@ -20,3 +20,13 @@
 .hero-area{width:min(1400px,100%);margin:0 auto;}
 .hero-area .quick{width:100%;max-width:none;margin:0;padding:24px 0 34px;justify-content:flex-start;align-items:center;gap:10px;}
 @media(max-width:600px){.hero-area{width:100%;}.hero-area .quick{padding:18px 16px 28px;overflow-x:auto;}}
+
+/* V4 - botones alineados exactamente con el borde izquierdo de la portada */
+.hero-area{display:block !important;width:min(1400px,100%) !important;max-width:1400px !important;margin-left:auto !important;margin-right:auto !important;padding:0 !important;}
+.hero-area .hero.hero-banner{width:100% !important;max-width:none !important;margin:0 !important;padding:0 !important;}
+.hero-area .quick{display:flex !important;width:100% !important;max-width:none !important;margin:0 !important;padding:24px 0 34px !important;justify-content:flex-start !important;align-items:center !important;gap:10px !important;}
+.hero-area .quick button{flex:0 0 auto !important;}
+@media(max-width:600px){
+ .hero-area{width:100% !important;max-width:none !important;}
+ .hero-area .quick{padding:18px 0 28px !important;overflow-x:auto !important;}
+}
