@@ -30,3 +30,15 @@
  .hero-area{width:100% !important;max-width:none !important;}
  .hero-area .quick{padding:18px 0 28px !important;overflow-x:auto !important;}
 }
+
+/* V5 - portada a ancho completo de la pantalla */
+.hero-area{width:100vw !important;max-width:none !important;margin-left:calc(50% - 50vw) !important;margin-right:0 !important;padding:0 !important;}
+.hero-area .hero.hero-banner{width:100vw !important;max-width:none !important;margin:0 !important;padding:0 !important;}
+.hero-area .hero-banner-link{width:100vw !important;}
+.hero-area .hero-banner-img{display:block !important;width:100vw !important;max-width:none !important;height:auto !important;}
+.hero-area .quick{width:100vw !important;max-width:none !important;padding:24px 0 34px !important;margin:0 !important;}
+@media(max-width:600px){
+ .hero-area{width:100vw !important;max-width:none !important;margin-left:calc(50% - 50vw) !important;}
+ .hero-area .hero.hero-banner,.hero-area .hero-banner-link,.hero-area .hero-banner-img{width:100vw !important;}
+ .hero-area .quick{width:100vw !important;padding:18px 16px 28px !important;}
+}
